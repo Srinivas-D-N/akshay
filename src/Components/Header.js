@@ -3,28 +3,53 @@ import { useNavigate } from 'react-router-dom';
 import { auth } from '../Utils/FireBase';
 import { signOut } from 'firebase/auth';
 import { useSelector } from 'react-redux';
+import { onAuthStateChanged } from 'firebase/auth'
+// import { auth } from '../Utils/FireBase'
+import { UseDispatch, useDispatch } from 'react-redux'
+import { addUser,removeUser } from '../Utils/userSlice'
+import { useEffect } from 'react';
+import { LOGO } from '../Utils/Constants';
 
 const Header = () => {
   const navigate = useNavigate()
+  const dispatch= useDispatch()
   const user= useSelector((store)=> store.user)
   function handleSignOut(){
     signOut(auth).then(() => {
-      navigate("/")
+      
       // Sign-out successful.
+      navigate("/")
     }).catch((error) => {
       // An error happened.
       navigate("/error")
     });
   }
+  useEffect(()=>{
+   const unsubscribe= onAuthStateChanged(auth, (user) => {
+      if (user) {
+        
+        const {uid, email, displayName, photoURL} = user;
+        dispatch(addUser({uid:uid, email: email, displayName: displayName, photoURL: photoURL}));
+        // navigate("/browse")
+        // ...                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+      } else {
+        // User is signed out
+        // ...
+        dispatch(removeUser());
+        navigate("/")
+      }
+    });
+    return () => unsubscribe();
+  },[])
   return (
     <div className= " absolute px-8 py-2 bg-gradient-to-b from-black z-10 w-screen flex justify-between">
         <img 
        
         style={{width:"150px"}}
-        src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/799px-Netflix_2015_logo.svg.png?20190206123158"
-        alt='logo'
+        src=
+{LOGO}        alt='logo'
         />
-       {user && <div className="flex">
+       { user && <div className="flex">
           <img 
           className="w-12 h-12 "
           alt="usericom"

@@ -1,16 +1,22 @@
 import React, { useState, useRef } from 'react'
 import Header from './Header'
 import { checkValidate } from '../Utils/Validate';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../Utils/FireBase';
-import { useNavigate } from 'react-router-dom';
+
+import { UseDispatch, useDispatch } from 'react-redux';
+import { addUser } from '../Utils/userSlice';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { USER_AVATAR } from '../Utils/Constants';
 const Login = () => {
     const [signInForm, setSignInForm ] = useState(true);
     const [errorMessage, setErrorMessage]= useState(null)
-    const navigate = useNavigate();
-
+   
+    const dispatch= useDispatch()
+    const name=useRef();
     const email=useRef();
     const password=useRef();
+    const navigate = useNavigate()
 
     function handleButtonClick(){
       //validate form data
@@ -23,7 +29,30 @@ const Login = () => {
   .then((userCredential) => {
     // Signed up 
     const user = userCredential.user;
-    navigate("/browse")
+    updateProfile(user, {
+      displayName: name.current.value, 
+      photoURL: {USER_AVATAR}
+    }).then(() => {
+      // Profile updated!
+      // ...
+      const {uid, email,displayName,photoURL} = auth.currentUser;
+      dispatch(
+        addUser({
+          uid: uid,
+          email:email,
+          displayName: displayName,
+          photoURL: photoURL
+        })
+      )
+      navigate("/browse");
+      
+    }).catch((error) => {
+      // An error occurred
+      // ...
+      setErrorMessage(error.message)
+    });
+    
+    
     // ...
   })
   .catch((error) => {
@@ -38,8 +67,7 @@ const Login = () => {
   .then((userCredential) => {
     // Signed in 
     const user = userCredential.user;
-    console.log(user)
-    navigate("/browse")
+   navigate("/browse")
     // ...
   })
   .catch((error) => {
@@ -68,6 +96,7 @@ const Login = () => {
             {signInForm ? "Sign In " : "Sign Up"}</h1>
            
             {!signInForm && (<input
+            ref={name}
             className='p-2 my-2 w-full bg-gray-800 rounded-lg'
             type="text"
             placeholder='Full Name'  />) }
