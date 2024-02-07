@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { API_OPTIONS } from "../Utils/Constants";
 import { addNowPlayingMovies } from "../Utils/MovieSlice";
 
-export const useNowPlayingMovies = () => {
+ export const useNowPlayingMovies = () => {
   // Fetch Data from TMDB API and update store
   const dispatch = useDispatch();
 
@@ -20,4 +20,5 @@ export const useNowPlayingMovies = () => {
     getNowPlayingMovies();
   }, []);
 };
+
 
